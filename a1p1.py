@@ -1,29 +1,5 @@
 from pathlib import Path
 
-def L_cmd(path_str, options):
-    '''
-    -r Output directory content recursively.
-    -f Output only files, excluding directories in the results.
-    -s Output only files that match a given file name.
-    -e Output only files that match a given file extension.
-    '''
-    my_path = Path(path_str)
-    if not my_path.exists():
-        print("The specified path does not exist or is not a directory.")
-        return
-
-    if "-r" in options:
-        items = my_path.rglob('*')
-    else:
-        items = my_path.iterdir()
-
-    for item in items:
-        if "-f" in options:
-            if item.is_file():
-                print(f"{item}")
-        else:
-            print(f"{item}")
-
 def parse_input(cmds):
     parts = cmds.split()
     
@@ -43,6 +19,43 @@ def parse_input(cmds):
 
     return command, path_str, options
 
+def option_value(options, flag):
+    if flag in options:
+        idx = options.index(flag)
+        if idx + 1 < len(options):
+            return options[idx + 1]
+    return None
+
+def L_cmd(path_str, options):
+    '''
+    -r Output directory content recursively.
+    -f Output only files, excluding directories in the results.
+    -s Output only files that match a given file name.
+    -e Output only files that match a given file extension.
+    '''
+    my_path = Path(path_str)
+    if not my_path.exists():
+        print("The specified path does not exist or is not a directory.")
+        return
+    
+    target_file = option_value(options, "-s")
+    target_ext = option_value(options, "-e")
+
+    if "-r" in options:
+        items = my_path.rglob('*')
+    else:
+        items = my_path.iterdir()
+
+    for item in items:
+        if "-f" in options and not item.is_file():
+            continue
+        if target_file:
+            if item.name != target_file:
+                continue
+        if target_ext:
+            if item.suffix.lstrip('.') != target_ext.lstrip('.'):
+                continue
+        print(f"{item}")
 def run():
     '''
     L - List the contents of the user specified directory.
@@ -61,5 +74,5 @@ def run():
 if __name__ == "__main__":
     run()
 
-    # /Users/henryzheng/Documents/ucirvine/2025-26/winter26/ics32
+    # L /Users/henryzheng/Documents/ucirvine/2025-26/winter26/ics32
     
