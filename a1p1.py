@@ -13,10 +13,15 @@ def L_cmd(path_str, options):
         return
 
     if "-r" in options:
-        for item in my_path.rglob('*'):
-            print(f"{item}")
+        items = my_path.rglob('*')
     else:
-        for item in my_path.iterdir():
+        items = my_path.iterdir()
+
+    for item in items:
+        if "-f" in options:
+            if item.is_file():
+                print(f"{item}")
+        else:
             print(f"{item}")
 
 def parse_input(cmds):
