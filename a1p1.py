@@ -1,25 +1,23 @@
 from pathlib import Path
 
-def L_options(cmds):
+def L_cmd(path_str, options):
     '''
     -r Output directory content recursively.
     -f Output only files, excluding directories in the results.
     -s Output only files that match a given file name.
     -e Output only files that match a given file extension.
     '''
-    pass
-
-def L_cmd(path_str, options):
-    '''
     my_path = Path(path_str)
-    if my_path.exists() and my_path.is_dir():
-        for item in my_path.iterdir():
+    if not my_path.exists():
+        print("The specified path does not exist or is not a directory.")
+        return
+
+    if "-r" in options:
+        for item in my_path.rglob('*'):
             print(f"{item}")
     else:
-        print("The specified path does not exist or is not a directory.")
-    '''
-    # L_options(cmds)
-    print(path_str, options)
+        for item in my_path.iterdir():
+            print(f"{item}")
 
 def parse_input(cmds):
     parts = cmds.split()
