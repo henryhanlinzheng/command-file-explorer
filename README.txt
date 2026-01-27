@@ -1,0 +1,1 @@
+This project is a command-based file explorer tool based in Python using pathlib that allows the user to find and filter files/directories. It parses custom commands (ie. L to list contents in a specific directory), and is supported with options such as recursive search (-r), file-only filtering (-f), search by filename (-s) and extension (-e).
