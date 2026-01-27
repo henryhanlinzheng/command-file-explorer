@@ -56,19 +56,61 @@ def L_cmd(path_str, options):
             if item.suffix.lstrip('.') != target_ext.lstrip('.'):
                 continue
         print(f"{item}")
+
+def C_cmd(path_str, options):
+    '''
+    -n Specify the name of the file to be created.
+    '''
+    my_path = Path(path_str)
+    if not my_path.exists() or not my_path.is_dir():
+        print("ERROR")
+        return
+    
+    if "-n" in options:
+        name = option_value(options, "-n")
+        if name is None:
+            print("ERROR")
+            return
+        name = Path(name).name
+        if not name.lower().endswith('.dsu'):
+            name += '.dsu'
+        new_file_path = my_path / name
+        try:
+            new_file_path.touch(exist_ok=False)
+            print(f"{new_file_path}")
+        except FileExistsError:
+            print(f"{new_file_path} already exists.")
+    return        
+    
+
+def D_cmd(path_str):
+    pass
+
+def R_cmd(path_str):
+    pass
+
 def run():
     '''
     L - List the contents of the user specified directory.
     Q - Quit the program.
+    C - Create a new file in the specified directory.
+    D - Delete the file.
+    R - Read the contents of a file.
     '''
     user_input = input("Enter user command: ")
 
     cmd, path_str, options = parse_input(user_input)
 
     if cmd == "L":
-        L_cmd(path_str, options)
+            L_cmd(path_str, options)
+    elif cmd == "C":
+        C_cmd(path_str, options)
+    elif cmd == "D":
+        D_cmd(path_str)
+    elif cmd == "R":
+        R_cmd(path_str)
     elif cmd == "Q":
-        exit()
+        return
     # print(command, path_str, options)
 
 if __name__ == "__main__":
