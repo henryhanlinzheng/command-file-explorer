@@ -196,7 +196,7 @@ def R_cmd(path_str):
             if contents == "":
                 print("EMPTY")
             else:
-                print(contents)
+                print(contents, end='')
     except OSError:
         print("ERROR")
     return
