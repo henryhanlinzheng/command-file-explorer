@@ -84,10 +84,32 @@ def C_cmd(path_str, options):
     
 
 def D_cmd(path_str):
-    pass
+    my_path = Path(path_str)
+    if not my_path.exists() or not my_path.is_file():
+        print("ERROR")
+        return
+    if my_path.suffix.lower() != '.dsu':
+        print("ERROR")
+        return
+    my_path.unlink()
+    print(f"{my_path} DELETED")
+    return
 
 def R_cmd(path_str):
-    pass
+    my_path = Path(path_str)
+    if not my_path.exists() or not my_path.is_file():
+        print("ERROR")
+        return
+    if my_path.suffix.lower() != '.dsu':
+        print("ERROR")
+        return
+    with my_path.open('r') as file:
+        contents = file.read()
+        if contents == "":
+            print("EMPTY")
+        else:
+            print(contents)
+    return
 
 def run():
     '''
