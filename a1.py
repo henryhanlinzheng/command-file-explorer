@@ -66,48 +66,77 @@ def L_cmd(path_str, options):
     '''
     my_path = Path(path_str)
     if not my_path.exists():
-        print("The specified path does not exist or is not a directory.")
+        print("ERROR")
         return
     
     target_file = option_value(options, "-s")
     target_ext = option_value(options, "-e")
+    recursive = "-r" in options
+    files_only = "-f" in options
 
-    def matches_filters(p: Path) -> bool:
-        if "-f" in options and not p.is_file():
+    # Helper to check if a file matches filter criteria
+    def should_print_file(item):
+        if files_only and not item.is_file():
             return False
-        if target_file and p.name != target_file:
+        if target_file and item.name != target_file:
             return False
-        if target_ext and p.suffix.lstrip('.') != target_ext.lstrip('.'):
+        if target_ext and item.suffix.lstrip('.') != target_ext.lstrip('.'):
             return False
         return True
 
-    def recurse_dir(p: Path):
+    def recursive_list(directory):
         try:
-            entries = sorted(p.iterdir(), key=lambda x: x.name.lower())
-        except PermissionError:
+            # Sort items to ensure deterministic output
+            items = sorted(directory.iterdir())
+        except OSError:
+            # Handle permission errors or missing paths gracefully
             return
-        for entry in entries:
-            if matches_filters(entry):
-                try:
-                    print(str(entry.resolve()))
-                except Exception:
-                    print(str(entry))
-            if entry.is_dir():
-                recurse_dir(entry)
 
-    if "-r" in options:
-        recurse_dir(my_path)
+        files = [i for i in items if i.is_file()]
+        dirs = [i for i in items if i.is_dir()]
+
+        # 1. Print Files First
+        for f in files:
+            if should_print_file(f):
+                print(f)
+
+        # 2. Process Directories
+        for d in dirs:
+            # Determine if we should print the directory name itself
+            # We skip printing the directory if:
+            # -f is on (files only)
+            # OR we are searching for specific names/extensions (-s / -e)
+            should_show_dir = not files_only and not target_file and not target_ext
+            
+            if recursive:
+                if should_show_dir:
+                    print(d)
+                recursive_list(d)
+            else:
+                # Non-recursive listing of the directory
+                if should_show_dir:
+                    print(d)
+
+    # Start the listing
+    if recursive:
+        recursive_list(my_path)
     else:
+        # Non-recursive logic (just list current dir contents)
+        # We reuse the same logic: Files first, then dirs
         try:
-            entries = sorted(my_path.iterdir(), key=lambda x: x.name.lower())
-        except PermissionError:
+            items = sorted(my_path.iterdir())
+        except OSError:
+            print("ERROR")
             return
-        for item in entries:
-            if matches_filters(item):
-                try:
-                    print(str(item.resolve()))
-                except Exception:
-                    print(str(item))
+        files = [i for i in items if i.is_file()]
+        dirs = [i for i in items if i.is_dir()]
+        
+        for f in files:
+            if should_print_file(f):
+                print(f)
+        for d in dirs:
+            if not files_only and not target_file and not target_ext:
+                print(d)
 
 def C_cmd(path_str, options):
     '''
@@ -118,20 +147,23 @@ def C_cmd(path_str, options):
         print("ERROR")
         return
     
-    if "-n" in options:
-        name = option_value(options, "-n")
-        if name is None:
-            print("ERROR")
-            return
-        name = Path(name).name
-        if not name.lower().endswith('.dsu'):
-            name += '.dsu'
-        new_file_path = my_path / name
-        try:
-            new_file_path.touch(exist_ok=False)
-            print(f"{new_file_path}")
-        except FileExistsError:
-            print(f"{new_file_path} already exists.")
+    if "-n" not in options:
+        print("ERROR")
+        return
+    
+    name = option_value(options, "-n")
+    if name is None:
+        print("ERROR")
+        return
+    name = Path(name).name
+    if not name.lower().endswith('.dsu'):
+        name += '.dsu'
+    new_file_path = my_path / name
+    try:
+        new_file_path.touch(exist_ok=False)
+        print(f"{new_file_path}")
+    except FileExistsError:
+        print(f"ERROR")
     return        
     
 
@@ -143,8 +175,11 @@ def D_cmd(path_str):
     if my_path.suffix.lower() != '.dsu':
         print("ERROR")
         return
-    my_path.unlink()
-    print(f"{my_path} DELETED")
+    try:    
+        my_path.unlink()
+        print(f"{my_path} DELETED")
+    except OSError:
+        print("ERROR")
     return
 
 def R_cmd(path_str):
@@ -155,12 +190,15 @@ def R_cmd(path_str):
     if my_path.suffix.lower() != '.dsu':
         print("ERROR")
         return
-    with my_path.open('r') as file:
-        contents = file.read()
-        if contents == "":
-            print("EMPTY")
-        else:
-            print(contents)
+    try:    
+        with my_path.open('r') as file:
+            contents = file.read()
+            if contents == "":
+                print("EMPTY")
+            else:
+                print(contents)
+    except OSError:
+        print("ERROR")
     return
 
 def run():
@@ -177,7 +215,7 @@ def run():
         if not parsed:
             print("ERROR")
             continue
-        cmd, path_str, options = parse_input(user_input)
+        cmd, path_str, options = parsed
         
         cmd = cmd.upper()
         if cmd not in ("L", "Q", "C", "D", "R"):
