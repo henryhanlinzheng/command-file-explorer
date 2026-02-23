@@ -1,4 +1,4 @@
-# Python bytecode (compiled files)
+# Python bytecode
 __pycache__/
 *.py[cod]
 *$py.class
@@ -8,12 +8,11 @@ __pycache__/
 Thumbs.db
 
 # Local Profile & Database Files
-# These are your local .dsu journal files or database exports
 *.dsu
 *.db
 *.sqlite3
 
-# Virtual Environments (if you ever use them)
+# Virtual Environments
 venv/
 env/
 .venv/
