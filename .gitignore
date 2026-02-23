@@ -1,0 +1,19 @@
+# Python bytecode (compiled files)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# Local Profile & Database Files
+# These are your local .dsu journal files or database exports
+*.dsu
+*.db
+*.sqlite3
+
+# Virtual Environments (if you ever use them)
+venv/
+env/
+.venv/
