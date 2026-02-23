@@ -240,8 +240,3 @@ def run():
 
 if __name__ == "__main__":
     run()
-
-    # L /Users/henryzheng/Documents/ucirvine/2025-26/winter26/ics32
-    # C /Users/henryzheng/Documents/ucirvine/2025-26/winter26/ics32
-    # D /Users/henryzheng/Documents/ucirvine/2025-26/winter26/ics32/test.dsu
-    # R /Users/henryzheng/Documents/ucirvine/2025-26/winter26/ics32/test.dsu
